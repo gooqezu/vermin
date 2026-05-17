@@ -1,3 +1,15 @@
+#' @title Compare different machine learning models
+#' @description
+#' Trains a machine learning model on a single or different
+#' train data frames using caret train with given methods,
+#' tests the model on a test data frames,
+#' and returns a data frame with names of passed parameters
+#' and results of model training
+#'
+#' @param train_data a list containing one or multiple data frames
+#' @param test_data a single data frame
+#' @param caret_methods a string with one or vector with multiple caret's train methods
+#'
 #' @export
 compare = function(train_data, test_data, caret_method) {
   if(!(is.list(train_data) && !is.data.frame(train_data))) stop("Train data must be in list")
