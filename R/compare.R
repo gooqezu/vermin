@@ -27,7 +27,9 @@ compare = function(train_data, test_data, caret_method) {
 
   count = 0
   train_names = unlist(stringr::str_split(stringr::str_remove(stringr::str_remove(
-    stringr::str_remove(deparse(substitute(train_data)), "list"), "[)]"), "[(]"), ", "))
+    stringr::str_remove(trimws(deparse(substitute(train_data))), "list"), "[)]"), "[(]"), ", "))
+  train_names = sapply(train_names, function (i) trimws(i), USE.NAMES = F)
+  train_names = sapply(train_names, function (i) stringr::str_remove(i, "[,]"), USE.NAMES = F)
 
   for (i in 1:length(train_data)) {
     for (j in 1:length(caret_method)) {
