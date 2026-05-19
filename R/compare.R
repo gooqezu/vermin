@@ -7,6 +7,7 @@
 #' and results of model training
 #' (Some methods may not be supported)
 #'
+#'
 #' @param train_data a list containing one or multiple data frames
 #' @param test_data a single data frame
 #' @param caret_methods a string with one or vector with multiple caret's train methods
