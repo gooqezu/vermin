@@ -5,6 +5,7 @@
 #' tests the model on a test data frames,
 #' and returns a data frame with names of passed parameters
 #' and results of model training
+#' (Some methods may not be supported)
 #'
 #' @param train_data a list containing one or multiple data frames
 #' @param test_data a single data frame
@@ -35,18 +36,44 @@ compare = function(train_data, test_data, caret_method) {
     for (j in 1:length(caret_method)) {
       count = count + 1
       print(paste0("Now testing on ", train_names[i], " using ", caret_method[j], "..."))
-      model = caret::train(sentiment ~ ., data = na.omit(train_data[[i]]), method = caret_method[j])
-      matr = caret::confusionMatrix(predict(model, na.omit(test_data)), na.omit(test_data)$sentiment)
-      df$train_data[count] = train_names[i]
-      df$method[count] = caret_method[j]
-      df$accuracy[count] = matr$overall[1]
-      df$precision[count] = matr$byClass[5]
-      df$recall[count] = matr$byClass[6]
-      df$f1[count] = matr$byClass[7]
+      if(caret_method[j] == "rpart") {
+        model = rpart::rpart(sentiment ~ ., data = train_data[[i]], method = "class")
+        matr = caret::confusionMatrix(predict(model, na.omit(test_data), type="class"), na.omit(test_data)$sentiment)
+        df$train_data[count] = train_names[i]
+        df$method[count] = caret_method[j]
+        df$accuracy[count] = matr$overall[1]
+        df$precision[count] = matr$byClass[5]
+        df$recall[count] = matr$byClass[6]
+        df$f1[count] = matr$byClass[7]
+
+        rpart.plot::rpart.plot(model, box.palette = "PuPu", shadow.col = "#EDB3C8", type = 5)
+        title(main = paste0("train: ", train_names[i], ", \ntest: ", deparse(substitute(test_data))),
+              cex.main=1.4, adj=0, col.main="#b33d70")
+      }
+      else if (caret_method[j] == "glm") {
+        model = glm(sentiment ~ ., data=train_data[[i]], family="binomial")
+        matr = as.matrix(table("predicted" = ifelse(predict(model, na.omit(test_data), type="response") > 0.5, "positive", "negative"),
+                               "actual" = na.omit(test_data)$sentiment))
+        df$train_data[count] = train_names[i]
+        df$method[count] = caret_method[j]
+        df$accuracy[count] = sum(diag(matr))/sum(matr)
+        df$precision[count] = matr[1, 1]/sum(matr[1,])
+        df$recall[count] = matr[1, 1]/sum(matr[, 1])
+        df$f1[count] = (2*df$precision[count]*df$recall[count])/(df$precision[count] + df$recall[count])
+      }
+      else {
+        model = caret::train(sentiment ~ ., data = train_data[[i]], method = caret_method[j])
+        matr = caret::confusionMatrix(predict(model, na.omit(test_data)), na.omit(test_data)$sentiment)
+        df$train_data[count] = train_names[i]
+        df$method[count] = caret_method[j]
+        df$accuracy[count] = matr$overall[1]
+        df$precision[count] = matr$byClass[5]
+        df$recall[count] = matr$byClass[6]
+        df$f1[count] = matr$byClass[7]
+      }
       print("Done")
     }
   }
-
   df$test_data = deparse(substitute(test_data))
   return(df)
 }
