@@ -1,3 +1,7 @@
+#' @title Descdist but with colors
+#' @description
+#' Adds bg/data color to descdist plot
+#'
 #' @export
 descdist2 = function (data, discrete = FALSE, boot = NULL, method = "unbiased",
 graph = TRUE, print = TRUE, obs.col = "red", obs.pch = 16,
