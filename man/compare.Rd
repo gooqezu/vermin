@@ -19,4 +19,5 @@ train data frames using caret train with given methods,
 tests the model on a test data frames,
 and returns a data frame with names of passed parameters
 and results of model training
+(Some methods may not be supported)
 }
