@@ -25,6 +25,7 @@ compare = function(train_data, test_data, caret_method) {
                   precision = NA,
                   recall = NA,
                   f1 = NA,
+                  conf_matr = NA,
                   tmp = c(1:df_len))[,-8]
 
   count = 0
@@ -46,6 +47,7 @@ compare = function(train_data, test_data, caret_method) {
         df$precision[count] = matr$byClass[5]
         df$recall[count] = matr$byClass[6]
         df$f1[count] = matr$byClass[7]
+        df$conf_matr[count] = matr
 
         rpart.plot::rpart.plot(model, box.palette = "PuPu", shadow.col = "#EDB3C8", type = 5)
         title(main = paste0("train: ", train_names[i], ", \ntest: ", deparse(substitute(test_data))),
@@ -61,6 +63,7 @@ compare = function(train_data, test_data, caret_method) {
         df$precision[count] = matr[1, 1]/sum(matr[1,])
         df$recall[count] = matr[1, 1]/sum(matr[, 1])
         df$f1[count] = (2*df$precision[count]*df$recall[count])/(df$precision[count] + df$recall[count])
+        df$conf_matr[count] = matr
       }
       else {
         model = caret::train(sentiment ~ ., data = train_data[[i]], method = caret_method[j])
@@ -71,6 +74,7 @@ compare = function(train_data, test_data, caret_method) {
         df$precision[count] = matr$byClass[5]
         df$recall[count] = matr$byClass[6]
         df$f1[count] = matr$byClass[7]
+        df$conf_matr[count] = matr
       }
       print("Done")
     }
