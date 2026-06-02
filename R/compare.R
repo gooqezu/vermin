@@ -11,9 +11,10 @@
 #' @param train_data a list containing one or multiple data frames
 #' @param test_data a single data frame
 #' @param caret_methods a string with one or vector with multiple caret's train methods
+#' @param class_column df column with classes to be used for classification training
 #'
 #' @export
-compare = function(train_data, test_data, caret_method) {
+compare = function(train_data, test_data, caret_method, class_column) {
   if(!(is.list(train_data) && !is.data.frame(train_data))) stop("Train data must be in list")
   if(is.vector(test_data)) stop("Test data must be passed as a single variable")
 
@@ -39,8 +40,8 @@ compare = function(train_data, test_data, caret_method) {
       count = count + 1
       print(paste0("Now testing on ", train_names[i], " using ", caret_method[j], "..."))
       if(caret_method[j] == "rpart") {
-        model = rpart::rpart(sentiment ~ ., data = train_data[[i]], method = "class")
-        matr = caret::confusionMatrix(predict(model, na.omit(test_data), type="class"), na.omit(test_data)$sentiment)
+        model = rpart::rpart(class_column ~ ., data = train_data[[i]], method = "class")
+        matr = caret::confusionMatrix(predict(model, na.omit(test_data), type="class"), na.omit(test_data)$class_column)
         df$train_data[count] = train_names[i]
         df$method[count] = caret_method[j]
         df$accuracy[count] = matr$overall[1]
@@ -54,9 +55,9 @@ compare = function(train_data, test_data, caret_method) {
               cex.main=1.4, adj=0, col.main="#b33d70")
       }
       else if (caret_method[j] == "glm") {
-        model = glm(sentiment ~ ., data=train_data[[i]], family="binomial")
+        model = glm(class_column ~ ., data=train_data[[i]], family="binomial")
         matr = as.matrix(table("predicted" = ifelse(predict(model, na.omit(test_data), type="response") > 0.5, "positive", "negative"),
-                               "actual" = na.omit(test_data)$sentiment))
+                               "actual" = na.omit(test_data)$class_column))
         df$train_data[count] = train_names[i]
         df$method[count] = caret_method[j]
         df$accuracy[count] = sum(diag(matr))/sum(matr)
@@ -66,8 +67,8 @@ compare = function(train_data, test_data, caret_method) {
         df$conf_matr[count] = matr
       }
       else {
-        model = caret::train(sentiment ~ ., data = train_data[[i]], method = caret_method[j])
-        matr = caret::confusionMatrix(predict(model, na.omit(test_data)), na.omit(test_data)$sentiment)
+        model = caret::train(class_column ~ ., data = train_data[[i]], method = caret_method[j])
+        matr = caret::confusionMatrix(predict(model, na.omit(test_data)), na.omit(test_data)$class_column)
         df$train_data[count] = train_names[i]
         df$method[count] = caret_method[j]
         df$accuracy[count] = matr$overall[1]
