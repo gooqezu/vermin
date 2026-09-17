@@ -15,8 +15,6 @@ devtools::install_github("gooqezu/vermin")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
-
 ``` r
 # library(vermin)
 # tmp = compare(list(some_test_data), some_train_data, some_caret_train_method)
